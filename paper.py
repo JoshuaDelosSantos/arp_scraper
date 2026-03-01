@@ -3,7 +3,23 @@ from bs4 import BeautifulSoup
 import time
 import config
 
-def fetch_paper(paper_id: str) -> BeautifulSoup:
+def save_paper(paper:dict, output_dir: str) -> None:
+    paper_id = paper["id"]
+    soup = paper["soup"]
+    
+    for tag in soup(["script", "style", "header", "footer", "nav"]):
+        tag.decompose()
+    text = soup.get_text(separator="\n", strip=True)
+
+    with open(f"{output_dir}/{paper_id}.txt", "w", encoding="utf-8") as f:
+        f.write(text)
+        print(f"Saved paper {paper_id} to {output_dir}/{paper_id}.txt")
+
+
+def fetch_paper(paper_id: str) -> dict:
+    """
+    Fetches the paper details given a paper ID and returns a dictionary with the paper ID and its BeautifulSoup object.
+    """
     try:
         url = f"{config.BASE_URL}/html/{paper_id}"
         print(f"Fetching paper: {url}")
@@ -15,10 +31,12 @@ def fetch_paper(paper_id: str) -> BeautifulSoup:
         print(f"Failed to fetch paper {paper_id}: HTTP error")
         return None
     
-    return BeautifulSoup(response.text, 'html.parser')
+    return {
+        "id": paper_id,
+        "soup": BeautifulSoup(response.text, 'html.parser')
+    }
         
     
-
 def get_paper_ids(listing_url: str, num_papers: int) -> list[str]:
     response = requests.get(listing_url, timeout=30)
     response.raise_for_status()
@@ -42,5 +60,8 @@ if __name__ == "__main__":
     # paper_ids = get_paper_ids(config.LISTING_URL, config.NUM_PAPERS)
     # print(paper_ids)
     
-    soup = fetch_paper(paper_id=get_paper_ids(config.LISTING_URL, 1)[0])
-    print(soup.title.text if soup else "No paper found")
+    # paper = fetch_paper(paper_id=get_paper_ids(config.LISTING_URL, 1)[0])
+    # print(paper["soup"].title.text if paper else "No paper found")
+    
+    config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    save_paper(fetch_paper(get_paper_ids(config.LISTING_URL, 1)[0]), config.OUTPUT_DIR)
