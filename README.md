@@ -5,7 +5,7 @@
 ## Docker
 1. Pull image
 ```
-docker pull joshuaffds/arc_scraper:latest
+docker pull joshuaffds/arp_scraper:latest
 ```
 
 2. Build with env
