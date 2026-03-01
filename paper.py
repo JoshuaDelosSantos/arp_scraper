@@ -4,6 +4,13 @@ import time
 import config
 
 def save_paper(paper:dict, output_dir: str) -> None:
+    """
+    Args:
+        paper (dict): Dictionary containing paper ID and BeautifulSoup object
+        output_dir (str): Output directory path where the paper text will be saved
+        
+    Saves the paper text to a file named {paper_id}.txt in the specified output directory.
+    """
     paper_id = paper["id"]
     soup = paper["soup"]
     
