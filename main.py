@@ -3,11 +3,14 @@ import config
 import paper as p
 
 def main():
-    paper_ids = p.get_paper_ids(config.LISTING_URL, 5)  # Start wihh 5 papers for testing
+    paper_ids = p.get_paper_ids(config.LISTING_URL, config.NUM_PAPERS)
     
     if not paper_ids:
         print("No paper IDs found. Exiting.")
         return
+    
+    if not config.OUTPUT_DIR.exists():
+        config.OUTPUT_DIR.mkdir(parents=True)
     
     for i, paper_id in enumerate(paper_ids, 1):
         paper = p.fetch_paper(paper_id)
