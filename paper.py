@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import time
 import config
 
 def save_paper(paper:dict, output_dir: str) -> None:
@@ -45,6 +44,14 @@ def fetch_paper(paper_id: str) -> dict:
         
     
 def get_paper_ids(listing_url: str, num_papers: int) -> list[str]:
+    """
+    Args:
+        listing_url (str): URL of the arXiv listing page to scrape for paper IDs
+        num_papers (int): Number of paper IDs to retrieve
+
+    Returns:
+        list[str]: List of paper IDs
+    """
     response = requests.get(listing_url, timeout=30)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
