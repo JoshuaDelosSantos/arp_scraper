@@ -64,8 +64,10 @@ def get_paper_ids(listing_url: str, num_papers: int) -> list[str]:
         if paper_id and paper_id not in ids:
             ids.append(paper_id)
             print(f"Found paper ID: {paper_id}")
-        elif os.path.exists(f"{config.OUTPUT_DIR}/{paper_id}.txt"):
+        
+        if os.path.exists(f"{config.OUTPUT_DIR}/{paper_id}.txt"):
             print(f"Paper {paper_id} already exists. Skipping.")
+            ids.remove(paper_id)  # Remove the paper ID from the list if it already exists
             
         if len(ids) >= num_papers:
             print(f"Reached desired number of papers: {num_papers}")
