@@ -84,5 +84,7 @@ if __name__ == "__main__":
     # paper = fetch_paper(paper_id=get_paper_ids(config.LISTING_URL, 1)[0])
     # print(paper["soup"].title.text if paper else "No paper found")
     
-    config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    save_paper(fetch_paper(get_paper_ids(config.LISTING_URL, 1)[0]), config.OUTPUT_DIR)
+    # config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # save_paper(fetch_paper(get_paper_ids(config.LISTING_URL, 1)[0]), config.OUTPUT_DIR)
+    
+    fetch_paper(paper_id="2603.02062")
