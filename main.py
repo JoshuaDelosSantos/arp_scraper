@@ -13,8 +13,12 @@ def main():
         config.OUTPUT_DIR.mkdir(parents=True)
     
     for i, paper_id in enumerate(paper_ids, 1):
-        paper = p.fetch_paper(paper_id)
-        p.save_paper(paper, config.OUTPUT_DIR)
+        try:
+            paper = p.fetch_paper(paper_id)
+            p.save_paper(paper, config.OUTPUT_DIR)
+        except Exception as e:
+            print(f"Error saving paper {paper_id}: {e}")
+        
         time.sleep(config.DELAY)  # Be polite and avoid hitting the server too hard
         
     print(f"Finished fetching {len(paper_ids)} papers. Saved to {config.OUTPUT_DIR}.")
