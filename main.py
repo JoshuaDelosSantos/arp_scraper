@@ -24,7 +24,7 @@ def main():
         
         time.sleep(config.DELAY)  # Be polite and avoid hitting the server too hard
         
-    print(f"Finished fetching {len(paper_ids)} papers. Saved to {config.OUTPUT_DIR}.")
+    print(f"Finished fetching {len([id for id in paper_ids if id is not None])} papers. Saved to {config.OUTPUT_DIR}.")
     
 if __name__ == "__main__":
     main()
