@@ -12,7 +12,10 @@ def main():
     if not config.OUTPUT_DIR.exists():
         config.OUTPUT_DIR.mkdir(parents=True)
     
-    for i, paper_id in enumerate(paper_ids, 1):
+    for paper_id in paper_ids:
+        if paper_id is None:
+            print("Skipping invalid paper ID: None")
+            continue
         try:
             paper = p.fetch_paper(paper_id)
             p.save_paper(paper, config.OUTPUT_DIR)
