@@ -30,12 +30,13 @@ def fetch_paper(paper_id: str) -> dict:
     try:
         url = f"{config.BASE_URL}/html/{paper_id}"
         print(f"Fetching paper: {url}")
-        response = requests.get(url, timeout=30)
+        response = requests.get(url, timeout=60)
         response.raise_for_status()
     
     except requests.HTTPError:
         # Modify this logic for a fallback
         print(f"Failed to fetch paper {paper_id}: HTTP error")
+        print(response.status_code)
         return None
     
     return {
