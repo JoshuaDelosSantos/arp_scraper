@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: Dockerhub
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,7 +23,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: joshuaffds/arp_scraper:latest
+          images: joshuaffds/arp_scraper
           tags: |
             type=sha,prefix=sha-
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
