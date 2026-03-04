@@ -2,7 +2,7 @@ import time
 import config
 import paper as p
 
-#TODO: Add github actions to automatically build and push docker
+#TODO: Refactor to output JSON instead of txt
 
 def main():
     paper_ids = p.get_paper_ids(config.LISTING_URL, config.NUM_PAPERS)
