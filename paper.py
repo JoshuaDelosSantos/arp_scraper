@@ -1,10 +1,13 @@
 import json
+import logging
 import os
 
 import requests
 from bs4 import BeautifulSoup
 
 import config
+
+logger = logging.getLogger(__name__)
 
 def load_papers(output_dir: str) -> list[dict]:
     """
@@ -13,8 +16,12 @@ def load_papers(output_dir: str) -> list[dict]:
     """
     filepath = f"{output_dir}/papers.json"
     if os.path.exists(filepath):
+        logger.info("Loading existing papers from %s", filepath)
         with open(filepath, "r", encoding="utf-8") as f:
-            return json.load(f)
+            papers = json.load(f)
+        logger.info("Loaded %d existing paper(s)", len(papers))
+        return papers
+    logger.debug("No existing papers file found at %s", filepath)
     return []
 
 
@@ -34,10 +41,11 @@ def save_papers(papers: list[dict], output_dir: str) -> None:
     merged = existing + new_papers
 
     filepath = f"{output_dir}/papers.json"
+    logger.info("Writing %d new paper(s) to %s (%d total)", len(new_papers), filepath, len(merged))
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(merged, f, indent=2, ensure_ascii=False)
 
-    print(f"Saved {len(new_papers)} new paper(s) to {filepath} ({len(merged)} total)")
+    logger.info("Saved %d new paper(s) to %s (%d total)", len(new_papers), filepath, len(merged))
 
 
 def fetch_paper(paper_id: str) -> dict:
@@ -47,12 +55,12 @@ def fetch_paper(paper_id: str) -> dict:
     """
     try:
         url = f"{config.BASE_URL}/html/{paper_id}"
-        print(f"Fetching paper: {url}")
+        logger.info("Fetching paper: %s", url)
         response = requests.get(url, timeout=60)
         response.raise_for_status()
 
     except requests.HTTPError:
-        print(f"Failed to fetch paper {paper_id}: HTTP error {response.status_code}")
+        logger.error("Failed to fetch paper %s: HTTP error %s", paper_id, response.status_code)
         return None
 
     soup = BeautifulSoup(response.text, "html.parser")
@@ -73,6 +81,8 @@ def fetch_paper(paper_id: str) -> dict:
     for tag in soup(["script", "style", "header", "footer", "nav"]):
         tag.decompose()
     body = soup.get_text(separator="\n", strip=True)
+
+    logger.debug("Parsed paper %s — title: %s", paper_id, title.strip()[:80])
 
     return {
         "id": paper_id,
@@ -97,6 +107,7 @@ def get_paper_ids(listing_url: str, num_papers: int) -> list[str]:
     soup = BeautifulSoup(response.text, 'html.parser')
 
     _existing_ids = {p["id"] for p in load_papers(config.OUTPUT_DIR)}
+    logger.info("Found %d existing paper ID(s) to skip", len(_existing_ids))
 
     ids = []
     for a_tag in soup.select("a[href^='/abs/']"):
@@ -104,15 +115,16 @@ def get_paper_ids(listing_url: str, num_papers: int) -> list[str]:
         
         if paper_id and paper_id not in ids:
             ids.append(paper_id)
-            print(f"Found paper ID: {paper_id}")
+            logger.debug("Found paper ID: %s", paper_id)
         
         if paper_id in _existing_ids:
-            print(f"Paper {paper_id} already exists. Skipping.")
-            ids.remove(paper_id)  # Remove the paper ID from the list if it already exists
+            logger.info("Paper %s already exists. Skipping.", paper_id)
+            ids.remove(paper_id)
             
         if len(ids) >= num_papers:
-            print(f"Reached desired number of papers: {num_papers}")
+            logger.info("Reached desired number of papers: %d", num_papers)
             break
+    logger.info("Collected %d new paper ID(s) to fetch", len(ids))
     return ids
 
 
